@@ -1,0 +1,48 @@
+name: Secure Notes checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -r requirements-dev.txt
+      - run: mkdir -p evidence/raw && python -m pytest -v --junitxml=evidence/raw/pytest.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: evidence/raw/pytest.xml
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: mkdir -p evidence/raw && python -m bandit -r app -f json -o evidence/raw/bandit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-results
+          path: evidence/raw/bandit.json
+  sca:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: mkdir -p evidence/raw && python -m pip_audit -r requirements.txt --disable-pip --no-deps -f json -o evidence/raw/pip-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sca-results
+          path: evidence/raw/pip-audit.json

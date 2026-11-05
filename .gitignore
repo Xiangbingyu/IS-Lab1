@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+instance/
+.env
+*.db
+evidence/private/
+evidence/raw/live-demo.json
+evidence/raw/local-server.log
+evidence/raw/local-server-error.log
+

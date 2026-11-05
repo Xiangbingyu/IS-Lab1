@@ -1,0 +1,72 @@
+<!doctype html><meta charset="utf-8"><title>Live API security checks</title><style>body{font:16px Arial;background:#edf2f4;color:#182c38;margin:0;padding:44px}main{max-width:1080px;margin:auto}h1{font-size:30px}p{color:#48616e}pre{font:14px/1.6 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:white;border:1px solid #cfdae1;padding:24px;border-radius:10px}</style><main><h1>Live API security checks</h1><p>Actual HTTP responses from the local Flask application. JWT omitted.</p><pre>{
+  &quot;timestamp_utc&quot;: &quot;2026-11-05T03:36:14.084Z&quot;,
+  &quot;base_url&quot;: &quot;http://127.0.0.1:5081&quot;,
+  &quot;login&quot;: {
+    &quot;status&quot;: 200,
+    &quot;token&quot;: &quot;[redacted]&quot;
+  },
+  &quot;checks&quot;: [
+    {
+      &quot;name&quot;: &quot;GET /health&quot;,
+      &quot;status&quot;: 200,
+      &quot;body&quot;: {
+        &quot;status&quot;: &quot;ok&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;GET /api/data without token&quot;,
+      &quot;status&quot;: 401,
+      &quot;body&quot;: {
+        &quot;error&quot;: &quot;Authentication required&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;POST /auth/login with SQL injection username&quot;,
+      &quot;status&quot;: 401,
+      &quot;body&quot;: {
+        &quot;error&quot;: &quot;Invalid credentials&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;GET /api/notes?q=SQL-injection-payload&quot;,
+      &quot;status&quot;: 200,
+      &quot;body&quot;: {
+        &quot;notes&quot;: []
+      }
+    },
+    {
+      &quot;name&quot;: &quot;GET /api/data with tampered token&quot;,
+      &quot;status&quot;: 401,
+      &quot;body&quot;: {
+        &quot;error&quot;: &quot;Invalid or expired token&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;GET /api/data with valid token&quot;,
+      &quot;status&quot;: 200,
+      &quot;body&quot;: {
+        &quot;notes&quot;: [
+          {
+            &quot;body&quot;: &quot;&lt;script&gt;window.__xss=1;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=\&quot;window.__xss=1\&quot;&gt;&quot;,
+            &quot;created_at&quot;: &quot;2026-11-05T03:36:12.941677&quot;,
+            &quot;id&quot;: 2,
+            &quot;title&quot;: &quot;XSS payload displayed as text&quot;
+          },
+          {
+            &quot;body&quot;: &quot;Build the API, test its protections, audit dependencies, and verify the results.&quot;,
+            &quot;created_at&quot;: &quot;2026-11-05T03:36:12.821094&quot;,
+            &quot;id&quot;: 1,
+            &quot;title&quot;: &quot;Security lifecycle&quot;
+          }
+        ]
+      }
+    }
+  ],
+  &quot;xss&quot;: {
+    &quot;payload&quot;: &quot;&lt;script&gt;window.__xss=1;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=\&quot;window.__xss=1\&quot;&gt;&quot;,
+    &quot;dom_elements_created&quot;: 0,
+    &quot;script_executed&quot;: false,
+    &quot;dialogs&quot;: 0,
+    &quot;csp_bypass_context_also_passed&quot;: true
+  }
+}</pre></main>

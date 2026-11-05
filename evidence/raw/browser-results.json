@@ -1,0 +1,72 @@
+{
+  "timestamp_utc": "2026-11-05T03:36:14.084Z",
+  "base_url": "http://127.0.0.1:5081",
+  "login": {
+    "status": 200,
+    "token": "[redacted]"
+  },
+  "checks": [
+    {
+      "name": "GET /health",
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "GET /api/data without token",
+      "status": 401,
+      "body": {
+        "error": "Authentication required"
+      }
+    },
+    {
+      "name": "POST /auth/login with SQL injection username",
+      "status": 401,
+      "body": {
+        "error": "Invalid credentials"
+      }
+    },
+    {
+      "name": "GET /api/notes?q=SQL-injection-payload",
+      "status": 200,
+      "body": {
+        "notes": []
+      }
+    },
+    {
+      "name": "GET /api/data with tampered token",
+      "status": 401,
+      "body": {
+        "error": "Invalid or expired token"
+      }
+    },
+    {
+      "name": "GET /api/data with valid token",
+      "status": 200,
+      "body": {
+        "notes": [
+          {
+            "body": "<script>window.__xss=1;alert('xss')</script><img src=x onerror=\"window.__xss=1\">",
+            "created_at": "2026-11-05T03:36:12.941677",
+            "id": 2,
+            "title": "XSS payload displayed as text"
+          },
+          {
+            "body": "Build the API, test its protections, audit dependencies, and verify the results.",
+            "created_at": "2026-11-05T03:36:12.821094",
+            "id": 1,
+            "title": "Security lifecycle"
+          }
+        ]
+      }
+    }
+  ],
+  "xss": {
+    "payload": "<script>window.__xss=1;alert('xss')</script><img src=x onerror=\"window.__xss=1\">",
+    "dom_elements_created": 0,
+    "script_executed": false,
+    "dialogs": 0,
+    "csp_bypass_context_also_passed": true
+  }
+}

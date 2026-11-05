@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure Notes · IS Lab 1</title><link rel="stylesheet" href="/static/style.css">
+<script src="/static/app.js" defer></script></head>
+<body><main>
+<header><p class="eyebrow">INFORMATION SECURITY / LAB 01</p><h1>Secure Notes</h1>
+<p>A private workspace for your learning notes.</p></header>
+<section><h2>1. Sign in</h2><form id="login-form">
+<label>Username<input name="username" required autocomplete="username"></label>
+<label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+<button>Sign in</button><button type="button" id="logout">Sign out</button></form><p id="status" role="status">Not signed in</p></section>
+<section><h2>2. Write a note</h2><form id="note-form">
+<label>Title<input name="title" required maxlength="120"></label>
+<label>Note<textarea name="body" required maxlength="4000" rows="3"></textarea></label>
+<button>Save note</button></form></section>
+<section><h2>3. Your notes</h2><form id="search-form"><label>Search title<input name="q" maxlength="100"></label><button>Search</button></form>
+<div id="notes"><p>Sign in to see your notes.</p></div></section>
+<footer>Flask · bcrypt · JWT · parameterized queries · safe text rendering</footer>
+</main></body></html>

@@ -1,0 +1,55 @@
+<!doctype html><meta charset="utf-8"><title>Automated functional and security tests</title><style>body{font:16px Arial;background:#edf2f4;color:#182c38;margin:0;padding:44px}main{max-width:1080px;margin:auto}h1{font-size:30px}p{color:#48616e}pre{font:14px/1.6 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:white;border:1px solid #cfdae1;padding:24px;border-radius:10px}</style><main><h1>Automated functional and security tests</h1><p>Actual pytest output; full log is preserved in evidence/raw/pytest.txt.</p><pre>============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\xby\Desktop\信息安全\lab1\.venv\Scripts\python.exe
+rootdir: C:\Users\xby\Desktop\信息安全\lab1
+configfile: pyproject.toml
+testpaths: tests
+plugins: platformdirs-4.14.5
+collecting ... collected 43 items
+
+tests/test_api.py::test_health_and_frontend PASSED                       [  2%]
+tests/test_api.py::test_login_token_claims PASSED                        [  4%]
+tests/test_api.py::test_login_rejects_bad_credentials[student-wrong] PASSED [  6%]
+tests/test_api.py::test_login_rejects_bad_credentials[missing-wrong] PASSED [  9%]
+tests/test_api.py::test_login_rejects_bad_credentials[&#39; OR &#39;1&#39;=&#39;1&#39; ---anything] PASSED [ 11%]
+tests/test_api.py::test_login_rejects_non_object_json[payload0] PASSED   [ 13%]
+tests/test_api.py::test_login_rejects_non_object_json[None] PASSED       [ 16%]
+tests/test_api.py::test_login_rejects_non_object_json[text] PASSED       [ 18%]
+tests/test_api.py::test_login_rejects_non_object_json[123] PASSED        [ 20%]
+tests/test_api.py::test_all_private_endpoints_require_token[/api/data-get] PASSED [ 23%]
+tests/test_api.py::test_all_private_endpoints_require_token[/api/notes-get] PASSED [ 25%]
+tests/test_api.py::test_all_private_endpoints_require_token[/api/notes/1-get] PASSED [ 27%]
+tests/test_api.py::test_all_private_endpoints_require_token[/api/notes-post] PASSED [ 30%]
+tests/test_api.py::test_bad_signature PASSED                             [ 32%]
+tests/test_api.py::test_invalid_claims[expired] PASSED                   [ 34%]
+tests/test_api.py::test_invalid_claims[missing-exp] PASSED               [ 37%]
+tests/test_api.py::test_invalid_claims[wrong-aud] PASSED                 [ 39%]
+tests/test_api.py::test_invalid_claims[wrong-iss] PASSED                 [ 41%]
+tests/test_api.py::test_invalid_claims[future] PASSED                    [ 44%]
+tests/test_api.py::test_invalid_claims[bad-sub] PASSED                   [ 46%]
+tests/test_api.py::test_invalid_claims[huge-sub] PASSED                  [ 48%]
+tests/test_api.py::test_invalid_claims[deleted] PASSED                   [ 51%]
+tests/test_api.py::test_invalid_claims[none] PASSED                      [ 53%]
+tests/test_api.py::test_owner_isolation_and_create PASSED                [ 55%]
+tests/test_api.py::test_sqli_and_wildcards_are_literal[&#39; OR &#39;1&#39;=&#39;1&#39; --] PASSED [ 58%]
+tests/test_api.py::test_sqli_and_wildcards_are_literal[%] PASSED         [ 60%]
+tests/test_api.py::test_sqli_and_wildcards_are_literal[_] PASSED         [ 62%]
+tests/test_api.py::test_sqli_and_wildcards_are_literal[&#39;; DROP TABLE note; --] PASSED [ 65%]
+tests/test_api.py::test_normal_search PASSED                             [ 67%]
+tests/test_api.py::test_xss_payload_remains_json_text PASSED             [ 69%]
+tests/test_api.py::test_invalid_note_input[data0] PASSED                 [ 72%]
+tests/test_api.py::test_invalid_note_input[data1] PASSED                 [ 74%]
+tests/test_api.py::test_invalid_note_input[data2] PASSED                 [ 76%]
+tests/test_api.py::test_invalid_note_input[data3] PASSED                 [ 79%]
+tests/test_api.py::test_invalid_note_input[data4] PASSED                 [ 81%]
+tests/test_api.py::test_invalid_note_input[data5] PASSED                 [ 83%]
+tests/test_api.py::test_request_and_query_limits PASSED                  [ 86%]
+tests/test_api.py::test_bcrypt_salt_and_verification PASSED              [ 88%]
+tests/test_api.py::test_password_byte_limit PASSED                       [ 90%]
+tests/test_api.py::test_security_headers PASSED                          [ 93%]
+tests/test_api.py::test_missing_secret_fails_closed PASSED               [ 95%]
+tests/test_api.py::test_default_bcrypt_cost PASSED                       [ 97%]
+tests/test_api.py::test_deleted_user_token PASSED                        [100%]
+
+- generated xml file: C:\Users\xby\Desktop\信息安全\lab1\evidence\raw\pytest.xml --
+============================= 43 passed in 0.81s ==============================
+</pre></main>
