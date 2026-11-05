@@ -1,10 +1,15 @@
 # Secure REST API Development and Automated Security Testing
 
-HANGZHOU DIANZI UNIVERSITY  
-Information Security — Laboratory Work No. 1, Part I  
-Performed by: XiangBingYu  
-HDU number: 23320211  
-Experiment date: 5 November 2026  
+HANGZHOU DIANZI UNIVERSITY
+
+Information Security — Laboratory Work No. 1, Part I
+
+Performed by: XiangBingYu
+
+HDU number: 23320211
+
+Experiment date: 5 November 2026
+
 Repository: <https://github.com/Xiangbingyu/IS-Lab1>
 
 ## 1. Purpose of the Work
