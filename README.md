@@ -1,28 +1,30 @@
 # IS Lab 1 Secure Notes
 
-信息安全实验第一部分：使用 Flask 实现个人学习笔记 API，完成身份认证、密码哈希、SQL 注入与 XSS 防护、用户数据隔离，以及自动测试和安全扫描。
+English | [简体中文](README.zh-CN.md)
 
-作者：XiangBingYu，学号：23320211。
+Part I of the Information Security laboratory: a personal learning-notes API built with Flask. It demonstrates authentication, password hashing, SQL injection and XSS protection, per-user access control, automated tests, and security scanning.
 
-验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326)。
+Author: **XiangBingYu** · Student ID: **23320211**
 
-仓库：<https://github.com/Xiangbingyu/IS-Lab1>
+Recorded results: **43 local tests passed**, no unsuppressed SAST findings (one documented false-positive suppression), and no known vulnerabilities found in 13 runtime dependencies. [All three GitHub Actions jobs passed](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326).
 
-## 文件导航
+Repository: <https://github.com/Xiangbingyu/IS-Lab1>
 
-- [英文实验报告](docs/PART1_REPORT.md)：可按章节填入 Word。
-- [截图索引](evidence/README.md)：每张图片的用途与插入位置。
-- `app/`：应用、网页和安全逻辑。
-- `tests/`：43 项功能与安全测试。
-- `.github/workflows/ci.yml`：测试、SAST、SCA 三个独立任务。
-- `evidence/raw/`：真实运行日志与机器可读结果。
-- `evidence/screenshots/`：实验截图。
+## Project Contents
 
-本仓库当前只包含第一部分；第二部分 CVE 选题和复现后续单独完成。
+- [English laboratory report](docs/PART1_REPORT.md): organized into sections for transfer to the Word report.
+- [Screenshot index (Chinese)](evidence/README.md): explains the purpose and suggested placement of each image.
+- `app/`: application, browser interface, and security logic.
+- `tests/`: 43 functional and security tests.
+- `.github/workflows/ci.yml`: separate test, SAST, and SCA jobs.
+- `evidence/raw/`: actual execution logs and machine-readable results.
+- `evidence/screenshots/`: experiment screenshots.
 
-## 本地启动
+This repository currently covers Part I. CVE selection and reproduction for Part II will be completed separately.
 
-要求 Python 3.13。以下命令在仓库根目录的 PowerShell 执行。密钥只放在环境变量中，用户密码交互输入，不写进代码或命令行参数。
+## Local Setup
+
+Python 3.13 is required. Run the following commands in PowerShell from the repository root. The signing secret is supplied through an environment variable, and the user password is entered interactively rather than stored in source code or command-line arguments.
 
 ```powershell
 python -m venv .venv
@@ -33,9 +35,9 @@ $env:LAB1_SECRET_KEY = & .\.venv\Scripts\python.exe -c "import secrets; print(se
 & .\.venv\Scripts\waitress-serve.exe --host=127.0.0.1 --port=5081 --call app:create_app
 ```
 
-打开 <http://127.0.0.1:5081>，使用刚创建的账号登录。数据库位于 `instance/notes.db`，已从 Git 排除。密码要求 12–72 个 UTF-8 字节；bcrypt 成本为 12。新开终端时需要重新设置环境变量；更换密钥会使旧令牌失效。
+Open <http://127.0.0.1:5081> and sign in with the account you created. The database is stored in `instance/notes.db` and excluded from Git. Passwords must contain 12–72 UTF-8 bytes; bcrypt uses a cost factor of 12. Set the environment variable again when opening a new terminal. Changing the signing secret invalidates previously issued tokens.
 
-Linux/macOS 对应命令：
+Equivalent commands for Linux/macOS:
 
 ```bash
 python3.13 -m venv .venv
@@ -49,51 +51,53 @@ waitress-serve --host=127.0.0.1 --port=5081 --call app:create_app
 
 ## API
 
-| 方法 | 路径 | 作用 | 认证 |
+| Method | Endpoint | Purpose | Authentication |
 |---|---|---|---|
-| POST | `/auth/login` | 提交 `username` 和 `password`，获得 JWT | 否 |
-| GET | `/api/data` | 获取当前用户的笔记，兼容实验基础数据接口 | 是 |
-| GET | `/api/notes?q=JWT` | 按标题搜索自己的笔记 | 是 |
-| POST | `/api/notes` | 提交 `title`、`body` 创建笔记 | 是 |
-| GET | `/api/notes/<id>` | 获取自己的单条笔记 | 是 |
-| GET | `/health` | 健康检查 | 否 |
+| POST | `/auth/login` | Submit `username` and `password` to obtain a JWT | Public |
+| GET | `/api/data` | Retrieve the current user's notes through the basic data endpoint | Required |
+| GET | `/api/notes?q=JWT` | Search the current user's notes by title | Required |
+| POST | `/api/notes` | Create a note using `title` and `body` | Required |
+| GET | `/api/notes/<id>` | Retrieve a single note owned by the current user | Required |
+| GET | `/health` | Check service health | Public |
 
-认证请求使用 `Authorization: Bearer <token>`。令牌有效期 30 分钟，校验签名、算法、有效期、签发时间、启用时间、签发者、受众和用户是否存在。客户端保存令牌于内存；退出仅清除本地令牌，不撤销已签发令牌。
+Authenticated requests use `Authorization: Bearer <token>`. Tokens expire after 30 minutes. Verification checks the signature, accepted algorithm, expiration, issue time, not-before time, issuer, audience, and whether the user still exists. The browser stores the token in memory. Signing out clears the local token but does not revoke an already issued token.
 
-## 检查
+## Tests and Security Checks
 
 ```powershell
 & .\.venv\Scripts\python.exe scripts/run_checks.py
 ```
 
-该命令依次执行 pytest、Bandit 和 pip-audit，保存真实输出到 `evidence/raw/`；任何任务失败都会返回非零退出码。依赖审计需要网络。
+This command runs pytest, Bandit, and pip-audit in sequence and saves their actual output to `evidence/raw/`. It returns a nonzero exit code if any check fails. The dependency audit requires network access.
 
-运行时依赖在 `requirements.txt` 中固定版本并包含传递依赖。`requirements-dev.txt` 额外包含测试和审计工具。SCA 的明确范围是运行时依赖，并不代表开发工具或整个操作系统也通过审计。当前锁定列表按 Python 3.13 环境生成；更换解释器或平台后应重新验证依赖解析。
+`requirements.txt` pins runtime dependencies, including transitive packages. `requirements-dev.txt` adds testing and auditing tools. The SCA scope is the runtime dependency list; it does not cover development tools or the entire operating system. The current list was generated for Python 3.13. Revalidate dependency resolution when changing the interpreter or platform.
 
-Bandit 初次发现 1 条 B106 误报：把 `token_type="Bearer"` 当成密码。Bearer 是公开认证协议名称，该处使用局部 `# nosec B106`，原因紧邻代码说明，未全局禁用规则。保留了 `bandit-initial.json`。最终扫描无未处理发现，包含 1 处已说明的规则抑制。
+The initial Bandit scan reported one B106 false positive: it interpreted `token_type="Bearer"` as a hardcoded password. `Bearer` is a public authentication scheme name. A local `# nosec B106` annotation documents the exception, with the explanation immediately above the code. The rule is not disabled globally. The original finding is preserved in `bandit-initial.json`. The final scan contains no unsuppressed findings and one documented suppression.
 
-GitHub Actions 会在 push、pull request 和手动触发时运行相同类别的检查。失败不会被 `continue-on-error` 隐藏；报告会通过 artifacts 上传。此实验实现持续集成与安全检查，未部署到公网服务。
+GitHub Actions runs the same categories of checks on pushes, pull requests, and manual dispatches. Failures are not hidden with `continue-on-error`, and reports are uploaded as artifacts. This project implements continuous integration and security checks; it does not deploy a public service.
 
-## 重现浏览器截图
+## Reproducing Browser Evidence
 
-另开终端运行实验专用演示服务器；它使用临时内存数据库和随机密码，不改动正常数据库：
+Start the dedicated demonstration server in another terminal. It uses a temporary in-memory database and random passwords without modifying the regular application database:
 
 ```powershell
 & .\.venv\Scripts\python.exe scripts/serve_demo.py
 ```
 
-演示登录信息仅保存在被忽略的 `evidence/private/demo-login.json`。截图脚本需要 Node.js、Playwright 和 Chrome；可在独立工具目录安装 Playwright，再通过环境变量 `PLAYWRIGHT_MODULE` 指向其模块路径，不必将它加入 Python 运行时依赖。
+Demonstration credentials are saved only in the Git-ignored file `evidence/private/demo-login.json`. The screenshot scripts require Node.js, Playwright, and Chrome. You can install Playwright in a separate tools directory and point `PLAYWRIGHT_MODULE` to its module path; it is not a Python runtime dependency.
 
 ```powershell
-# PLAYWRIGHT_MODULE 为你的 Playwright 模块路径；已能正常 require 时可省略。
+# Set PLAYWRIGHT_MODULE to your Playwright module path if it is not already resolvable.
 node scripts/capture_evidence.cjs
 node scripts/render_evidence_summary.cjs
 ```
 
-先执行 `run_checks.py`，再执行截图脚本。截图脚本操作真正的浏览器，完成登录、创建笔记和 XSS 检查，并保存实际 HTTP 响应。第二个脚本生成更适合插入 Word 的紧凑证据截图。03–06 是基于真实日志或 API 记录生成的证据阅读页截图，不是终端或 GitHub 网站截图。重新采集前重启演示服务器，以清空临时笔记。06 使用仓库内已保存的 GitHub 运行记录，并不自动抓取新流水线。
+Run `run_checks.py` before the screenshot scripts. The first screenshot script operates a real browser, signs in, creates notes, checks XSS behavior, and records actual HTTP responses. The second produces compact evidence screenshots suitable for the Word report.
 
-## 安全边界
+Screenshots 03–06 show evidence pages generated from real logs or API records; they are not terminal-window or GitHub-website screenshots. Restart the demonstration server before collecting evidence again to clear its temporary notes. Screenshot 06 uses the saved GitHub execution record and does not fetch a new workflow run automatically.
 
-这是本地教学项目。对外部署还需要 HTTPS、登录限速、密钥管理与轮换、令牌撤销策略、审计日志和运维配置。本项目不把“测试通过”或“未检出已知漏洞”解释为没有任何安全风险。
+## Security Scope and Limitations
 
-JSON 中的笔记是普通文本，前端必须通过 `textContent` 等安全方式显示；其他客户端如果把内容传入 `innerHTML`，仍可能引入 XSS。浏览器测试另开禁用 CSP 的上下文验证了安全文本显示本身的效果。
+This is a local educational project. Public deployment would additionally require HTTPS, login rate limiting, secret management and rotation, token revocation, audit logging, and operational configuration. Passing tests or finding no known dependency vulnerabilities does not establish that the application has no security risks.
+
+Notes returned in JSON are plain text. Clients must display them through a safe text API such as `textContent`. A different client that inserts the content through `innerHTML` could still introduce XSS. The browser experiment also checks a separate context with CSP bypassed to verify the protection provided by safe text rendering itself.
