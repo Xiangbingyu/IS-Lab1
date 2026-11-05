@@ -4,6 +4,8 @@
 
 作者：XiangBingYu，学号：23320211。
 
+验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326)。
+
 仓库：<https://github.com/Xiangbingyu/IS-Lab1>
 
 ## 文件导航
@@ -85,9 +87,10 @@ GitHub Actions 会在 push、pull request 和手动触发时运行相同类别�
 ```powershell
 # PLAYWRIGHT_MODULE 为你的 Playwright 模块路径；已能正常 require 时可省略。
 node scripts/capture_evidence.cjs
+node scripts/render_evidence_summary.cjs
 ```
 
-先执行 `run_checks.py`，再执行截图脚本。截图脚本操作真正的浏览器，完成登录、创建笔记和 XSS 检查，并保存实际 HTTP 响应。03–05 是基于真实日志生成的证据阅读页截图，不是终端截图。重新采集前重启演示服务器，以清空临时笔记。
+先执行 `run_checks.py`，再执行截图脚本。截图脚本操作真正的浏览器，完成登录、创建笔记和 XSS 检查，并保存实际 HTTP 响应。第二个脚本生成更适合插入 Word 的紧凑证据截图。03–06 是基于真实日志或 API 记录生成的证据阅读页截图，不是终端或 GitHub 网站截图。重新采集前重启演示服务器，以清空临时笔记。06 使用仓库内已保存的 GitHub 运行记录，并不自动抓取新流水线。
 
 ## 安全边界
 

@@ -9,8 +9,9 @@
 | `03-api-security-checks.png` | Functional and Security Testing | 实际请求的状态码和返回内容，令牌已省略 |
 | `04-pytest.png` | Functional and Security Testing | 实际 pytest 日志，43 项通过 |
 | `05-security-scans.png` | Security Scanning | 实际 Bandit 与 pip-audit JSON 结果 |
+| `06-github-actions.png` | GitHub Actions Execution | GitHub API 返回的三个成功任务及对应提交 |
 
-01–02 为应用页面截图。03–05 为真实输出的证据阅读页截图，不是终端窗口截图，不应在报告中将其描述为终端截图。截图采集由 `scripts/capture_evidence.cjs` 自动完成。
+01–02 为应用页面截图。03–06 为真实输出或 GitHub API 记录的证据阅读页截图，不是终端窗口或 GitHub 网站截图，不应在报告中将其描述为终端截图。截图采集由 `scripts/capture_evidence.cjs` 和 `scripts/render_evidence_summary.cjs` 自动完成。
 
 `raw/bandit-initial.json` 保留第一次扫描的 Bearer 协议名称误报。最终 Bandit 存在 1 处局部 B106 抑制，报告已说明，不能描述为“没有使用规则抑制”。
 
