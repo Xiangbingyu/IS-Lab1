@@ -138,7 +138,7 @@ The audit uses `--disable-pip --no-deps` against the explicit pinned runtime lis
 
 ### 6.3 GitHub Actions Execution
 
-The configured workflow provides continuous integration and security checks. It does not deploy the application to a public service. The [verified GitHub Actions run](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326) completed successfully on 5 November 2026: all three jobs (`test`, `sast` and `sca`) passed and uploaded their artifacts. The tested commit was `29ad65a3952aea5176087576c09eecc733828bcf`. Details and source records are provided in the companion [CI execution record](CI_RUN.md).
+The configured workflow provides continuous integration and security checks. It does not deploy the application to a public service. The [verified GitHub Actions run](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41979506780) completed successfully on 5 November 2026: all three jobs (`test`, `sast` and `sca`) passed and uploaded their artifacts. The tested commit was `f5e673fdbd97b359f7d5be0c4eba6ba73fb3ce43`. Details and source records are provided in the companion [CI execution record](CI_RUN.md).
 
 ![Figure 6. Successful remote jobs, recorded through the GitHub API.](../evidence/screenshots/06-github-actions.png)
 

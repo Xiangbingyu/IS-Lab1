@@ -6,7 +6,7 @@ Information Security laboratory work in two parts. Part I is a personal learning
 
 Author: **XiangBingYu** · Student ID: **23320211**
 
-Recorded results: **43 local tests passed**, no unsuppressed SAST findings (one documented false-positive suppression), and no known vulnerabilities found in 13 runtime dependencies. [All three GitHub Actions jobs passed](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326). For Part II, the traversal changed from HTTP 200 with file content (vulnerable) to HTTP 404 (fixed) while the site plugin kept serving its own files with HTTP 200.
+Recorded results: **43 local tests passed**, no unsuppressed SAST findings (one documented false-positive suppression), and no known vulnerabilities found in 13 runtime dependencies. [All three GitHub Actions jobs passed](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41979506780). For Part II, the traversal changed from HTTP 200 with file content (vulnerable) to HTTP 404 (fixed) while the site plugin kept serving its own files with HTTP 200.
 
 Repository: <https://github.com/Xiangbingyu/IS-Lab1>
 

@@ -159,7 +159,7 @@ pip-audit scanned the **13 pinned runtime packages** in `requirements.txt`, incl
 
 ### 6.3 GitHub Actions Execution
 
-The [verified GitHub Actions run](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326) completed successfully on 5 November 2026: all three jobs (`test`, `sast`, `sca`) passed and uploaded their artifacts. The tested commit was `29ad65a3952aea5176087576c09eecc733828bcf`. The workflow provides continuous integration and security checks; it does not deploy the application to a public service.
+The [verified GitHub Actions run](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41979506780) completed successfully on 5 November 2026: all three jobs (`test`, `sast`, `sca`) passed and uploaded their artifacts. The tested commit was `f5e673fdbd97b359f7d5be0c4eba6ba73fb3ce43`. The workflow provides continuous integration and security checks; it does not deploy the application to a public service.
 
 ![Figure 6. Successful remote jobs, recorded through the GitHub API.](../evidence/screenshots/06-github-actions.png)
 
@@ -320,7 +320,7 @@ Scope and limitations: reproduction and verification were performed against loca
 
 - Repository: <https://github.com/Xiangbingyu/IS-Lab1> (public)
 - `README.md` in the repository root — full documentation
-- Last successful pipeline run: <https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326>
+- Last successful pipeline run: <https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41979506780>
 - Fix folder: `vulhub-fix/CVE-2015-3337/` (fixed `docker-compose.fixed.yml` + `FIX.md`, with the patched source and raw evidence)
 
 ## References

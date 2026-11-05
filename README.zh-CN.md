@@ -6,7 +6,7 @@
 
 作者：XiangBingYu，学号：23320211。
 
-验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326)。第二部分中，穿越请求由漏洞版的 200（带文件内容）变为修复版的 404，同时站点插件自身文件仍返回 200。
+验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41979506780)。第二部分中，穿越请求由漏洞版的 200（带文件内容）变为修复版的 404，同时站点插件自身文件仍返回 200。
 
 仓库：<https://github.com/Xiangbingyu/IS-Lab1>
 
