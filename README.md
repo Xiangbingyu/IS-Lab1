@@ -2,25 +2,26 @@
 
 English | [简体中文](README.zh-CN.md)
 
-Part I of the Information Security laboratory: a personal learning-notes API built with Flask. It demonstrates authentication, password hashing, SQL injection and XSS protection, per-user access control, automated tests, and security scanning.
+Information Security laboratory work in two parts. Part I is a personal learning-notes API built with Flask; it demonstrates authentication, password hashing, SQL injection and XSS protection, per-user access control, automated tests, and security scanning. Part II reproduces, explains, fixes and verifies a real vulnerability, **CVE-2015-3337** (path traversal in Elasticsearch), inside Docker.
 
 Author: **XiangBingYu** · Student ID: **23320211**
 
-Recorded results: **43 local tests passed**, no unsuppressed SAST findings (one documented false-positive suppression), and no known vulnerabilities found in 13 runtime dependencies. [All three GitHub Actions jobs passed](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326).
+Recorded results: **43 local tests passed**, no unsuppressed SAST findings (one documented false-positive suppression), and no known vulnerabilities found in 13 runtime dependencies. [All three GitHub Actions jobs passed](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326). For Part II, the traversal changed from HTTP 200 with file content (vulnerable) to HTTP 404 (fixed) while the site plugin kept serving its own files with HTTP 200.
 
 Repository: <https://github.com/Xiangbingyu/IS-Lab1>
 
 ## Project Contents
 
-- [English laboratory report](docs/PART1_REPORT.md): organized into sections for transfer to the Word report.
+- [Combined laboratory report (Part I + Part II)](docs/WORK1_REPORT.md): single document organized for the Word submission.
+- [English laboratory report, Part I](docs/PART1_REPORT.md): secure REST API development and testing.
+- [English laboratory report, Part II](docs/PART2_REPORT.md): CVE-2015-3337 reproduction, root cause, fix and verification.
 - [Screenshot index (Chinese)](evidence/README.md): explains the purpose and suggested placement of each image.
 - `app/`: application, browser interface, and security logic.
 - `tests/`: 43 functional and security tests.
 - `.github/workflows/ci.yml`: separate test, SAST, and SCA jobs.
+- `vulhub-fix/CVE-2015-3337/`: vulnerable and fixed Docker images, patched source, and raw evidence.
 - `evidence/raw/`: actual execution logs and machine-readable results.
-- `evidence/screenshots/`: experiment screenshots.
-
-This repository currently covers Part I. CVE selection and reproduction for Part II will be completed separately.
+- `evidence/screenshots/`: experiment screenshots (Part I: 01–06, Part II: 07–10).
 
 ## Local Setup
 
@@ -95,6 +96,34 @@ node scripts/render_evidence_summary.cjs
 Run `run_checks.py` before the screenshot scripts. The first screenshot script operates a real browser, signs in, creates notes, checks XSS behavior, and records actual HTTP responses. The second produces compact evidence screenshots suitable for the Word report.
 
 Screenshots 03–06 show evidence pages generated from real logs or API records; they are not terminal-window or GitHub-website screenshots. Restart the demonstration server before collecting evidence again to clear its temporary notes. Screenshot 06 uses the saved GitHub execution record and does not fetch a new workflow run automatically.
+
+Part II screenshots (07–10) are rendered from the recorded CVE output with the same mechanism:
+
+```powershell
+node scripts/capture_part2_evidence.cjs
+```
+
+## Part II: CVE-2015-3337
+
+A detailed analysis is in the [Part II report](docs/PART2_REPORT.md). In short, Elasticsearch before 1.4.5 and 1.5.x before 1.5.2 allowed `../` traversal in the site-plugin handler: `HttpServer.handlePluginSite` tested containment with `getAbsolutePath()`, which does not resolve `..`, so the check could never reject a traversal. The fix normalizes the path first (`toPath().normalize().startsWith(...)`). A site plugin must be installed for the flaw to be reachable.
+
+Everything is under `vulhub-fix/CVE-2015-3337/`. Docker is required. Both images are deliberately insecure and bound to loopback — run them for the exercise only and never expose them to a public network.
+
+```powershell
+cd vulhub-fix/CVE-2015-3337
+docker compose -f docker-compose.yml up -d --build          # vulnerable, host port 9200
+docker compose -f docker-compose.fixed.yml up -d --build    # fixed,      host port 9201
+```
+
+Verification (vulnerable returns 200 with file content; fixed returns 404; both serve the plugin's own files with 200):
+
+```powershell
+curl.exe --path-as-is "http://127.0.0.1:9200/_plugin/head/../../../../../../../../../etc/passwd"
+curl.exe --path-as-is "http://127.0.0.1:9201/_plugin/head/../../../../../../../../../etc/passwd"
+curl.exe -o NUL -w "%{http_code}`n" http://127.0.0.1:9201/_plugin/head/index.html
+```
+
+`head-master.zip` (the `elasticsearch-head` site plugin) must be present in that directory. The fix is applied as a code-level backport: `Dockerfile.fixed` recompiles the patched `HttpServer.java` against the released 1.4.4 jar and replaces only the affected classes. See `vulhub-fix/CVE-2015-3337/FIX.md` for details.
 
 ## Security Scope and Limitations
 

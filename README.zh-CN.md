@@ -2,25 +2,26 @@
 
 [English](README.md) | 简体中文
 
-信息安全实验第一部分：使用 Flask 实现个人学习笔记 API，完成身份认证、密码哈希、SQL 注入与 XSS 防护、用户数据隔离，以及自动测试和安全扫描。
+信息安全实验分两部分。第一部分使用 Flask 实现个人学习笔记 API，完成身份认证、密码哈希、SQL 注入与 XSS 防护、用户数据隔离，以及自动测试和安全扫描。第二部分在 Docker 中复现、分析、修复并验证一个真实漏洞 **CVE-2015-3337**（Elasticsearch 目录穿越）。
 
 作者：XiangBingYu，学号：23320211。
 
-验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326)。
+验证结果：本地 43 项测试通过，SAST 无未处理发现（1 处已说明的误报抑制），13 个运行时依赖未检出已知漏洞；[GitHub Actions 三个任务全部通过](https://github.com/Xiangbingyu/IS-Lab1/actions/runs/41963172326)。第二部分中，穿越请求由漏洞版的 200（带文件内容）变为修复版的 404，同时站点插件自身文件仍返回 200。
 
 仓库：<https://github.com/Xiangbingyu/IS-Lab1>
 
 ## 文件导航
 
-- [英文实验报告](docs/PART1_REPORT.md)：可按章节填入 Word。
+- [整体实验报告（第一 + 第二部分）](docs/WORK1_REPORT.md)：合并为一份，供直接整理进 Word 提交。
+- [英文实验报告（第一部分）](docs/PART1_REPORT.md)：安全 REST API 的开发与测试。
+- [英文实验报告（第二部分）](docs/PART2_REPORT.md)：CVE-2015-3337 复现、根因、修复与验证。
 - [截图索引](evidence/README.md)：每张图片的用途与插入位置。
 - `app/`：应用、网页和安全逻辑。
 - `tests/`：43 项功能与安全测试。
 - `.github/workflows/ci.yml`：测试、SAST、SCA 三个独立任务。
+- `vulhub-fix/CVE-2015-3337/`：漏洞版与修复版镜像、补丁源码与原始证据。
 - `evidence/raw/`：真实运行日志与机器可读结果。
-- `evidence/screenshots/`：实验截图。
-
-本仓库当前只包含第一部分；第二部分 CVE 选题和复现后续单独完成。
+- `evidence/screenshots/`：实验截图（第一部分 01–06，第二部分 07–10）。
 
 ## 本地启动
 
@@ -93,6 +94,34 @@ node scripts/render_evidence_summary.cjs
 ```
 
 先执行 `run_checks.py`，再执行截图脚本。截图脚本操作真正的浏览器，完成登录、创建笔记和 XSS 检查，并保存实际 HTTP 响应。第二个脚本生成更适合插入 Word 的紧凑证据截图。03–06 是基于真实日志或 API 记录生成的证据阅读页截图，不是终端或 GitHub 网站截图。重新采集前重启演示服务器，以清空临时笔记。06 使用仓库内已保存的 GitHub 运行记录，并不自动抓取新流水线。
+
+第二部分截图（07–10）由同一机制渲染已记录的输出：
+
+```powershell
+node scripts/capture_part2_evidence.cjs
+```
+
+## 第二部分：CVE-2015-3337
+
+完整分析见[第二部分报告](docs/PART2_REPORT.md)。简述：Elasticsearch 在 1.4.5 之前及 1.5.2 之前的 1.5.x 中，站点插件处理器存在 `../` 目录穿越。`HttpServer.handlePluginSite` 用 `getAbsolutePath()` 做包含校验，而它不会解析 `..`，导致该校验永远无法拦穿越请求；修复方案是先归一化再比较（`toPath().normalize().startsWith(...)`）。该漏洞只有在安装站点插件时才可达。
+
+所有产物位于 `vulhub-fix/CVE-2015-3337/`，需要 Docker。两个镜像均为故意不安全的版本并绑定回环地址，仅供实验使用，切勿暴露到公网。
+
+```powershell
+cd vulhub-fix/CVE-2015-3337
+docker compose -f docker-compose.yml up -d --build          # 漏洞版，宿主 9200
+docker compose -f docker-compose.fixed.yml up -d --build    # 修复版，宿主 9201
+```
+
+验证（漏洞版返回 200 带文件内容，修复版返回 404，两者都仍以 200 提供插件自身文件）：
+
+```powershell
+curl.exe --path-as-is "http://127.0.0.1:9200/_plugin/head/../../../../../../../../../etc/passwd"
+curl.exe --path-as-is "http://127.0.0.1:9201/_plugin/head/../../../../../../../../../etc/passwd"
+curl.exe -o NUL -w "%{http_code}`n" http://127.0.0.1:9201/_plugin/head/index.html
+```
+
+该目录需包含 `head-master.zip`（`elasticsearch-head` 站点插件包）。修复以代码级 backport 方式实施：`Dockerfile.fixed` 用补丁后的 `HttpServer.java` 针对已发布的 1.4.4 jar 重新编译，只替换受影响的类。细节见 `vulhub-fix/CVE-2015-3337/FIX.md`。
 
 ## 安全边界
 

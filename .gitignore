@@ -9,3 +9,4 @@ evidence/private/
 evidence/raw/live-demo.json
 evidence/raw/local-server.log
 evidence/raw/local-server-error.log
+~$*.docx
